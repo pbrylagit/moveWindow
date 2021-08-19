@@ -75,13 +75,17 @@ def get_screens():
         screen_info = connected_screen.split(" ")
         name = screen_info[0]
         resolution = screen_info[2]
+        echo("resolution: " + resolution)
         if "primary" == resolution:
+            primary = True
             resolution = screen_info[3]
+        else:
+            primary = False
         width = int(resolution.split("x")[0])
         height = int(resolution.split("+")[0].split("x")[1])
         start_width = int(resolution.split("+")[1])
         start_height = int(resolution.split("+")[2])
-        list_of_screens.append(new_screen(name, start_width, start_height, width, height))
+        list_of_screens.append(new_screen(name, primary, start_width, start_height, width, height))
     list_of_screens.sort(key=lambda x: int(x.width), reverse=True)
     echo("Screen objects:")
     for s in list_of_screens:
@@ -180,16 +184,20 @@ def move_between_screens(screens, window_info):
 def center_screen(screens, window_info):
     used_screen = select_screen(window_info, screens)
     if "S" == direction:
-        x = used_screen.width * 0.2
-        y = used_screen.height * 0.2
+        x = used_screen.start_width + used_screen.width * 0.2
+        y = used_screen.start_height + used_screen.height * 0.2
         screen_height = used_screen.height * 0.6
         screen_width = used_screen.width * 0.6
         place_window(window_info, x, y, screen_width, screen_height)
     if "V" == direction:
-        bar_size =37
-        x = used_screen.width * 0.2
-        y = bar_size
-        screen_height = used_screen.height - bar_size - 7
+        bar_size = 37
+        additional_size = 7
+        if not used_screen.primary:
+            bar_size = 0
+            additional_size = 7
+        x = used_screen.start_width + used_screen.width * 0.2
+        y = used_screen.start_height + bar_size
+        screen_height = used_screen.height - bar_size - additional_size
         screen_width = used_screen.width * 0.6
         place_window(window_info, x, y, screen_width, screen_height)
     if "M" ==direction:
