@@ -192,6 +192,8 @@ def center_screen(screens, window_info):
         screen_height = used_screen.height - bar_size - 7
         screen_width = used_screen.width * 0.6
         place_window(window_info, x, y, screen_width, screen_height)
+    if "M" ==direction:
+        command.maximize(window_info.id)
 
 def maximize(window_id):
     command.minimize(window_id)
@@ -210,7 +212,7 @@ def main():
     # move_window(screens, window_info)
     if direction in ("U", "D", "L", "R"):
         move_between_screens(screens, window_info)
-    elif direction in ("S", "V"):
+    elif direction in ("S", "V", "M"):
         center_screen(screens, window_info)
 
 
