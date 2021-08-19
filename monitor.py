@@ -65,8 +65,9 @@ def move_right(window, screen):
 
 
 def get_screens():
+    echo("\n" +get_screens.__name__)
     connected_screens = command.get_screens()
-    echo(connected_screens)
+    echo("Connected screens from xrandr:\n" + connected_screens)
     screens = str(connected_screens).splitlines()
     list_of_screens = []
     # example: eDP-1 connected 1366x768+277+1080 ...
@@ -82,13 +83,14 @@ def get_screens():
         start_height = int(resolution.split("+")[2])
         list_of_screens.append(new_screen(name, start_width, start_height, width, height))
     list_of_screens.sort(key=lambda x: int(x.width), reverse=True)
+    echo("Screen objects:")
     for s in list_of_screens:
         echo(s)
     return list_of_screens
 
 
 def get_window_info():
-    echo("get_window_info")
+    echo("\n" + get_window_info.__name__)
     window_id = command.get_window_id()
     # window_id = str(75497473)
     temp_window_info = str(command.get_window_info(window_id)).splitlines()
@@ -114,7 +116,7 @@ def get_window_info():
 
 
 def select_screen(window, screens):
-    echo("select_screen()")
+    echo("\n" + select_screen.__name__)
     x = window.start_width
     y = window.start_height
 
@@ -126,12 +128,12 @@ def select_screen(window, screens):
              str(screen.start_height) + " <= " + str(y) + " <= " + str(screen_start_height))
 
         if screen.start_width <= x <= screen_start_width and screen.start_height <= y <= screen_start_height:
+            echo("Selected screen: " + str(screen))
             return screen
 
 
 def move_between_screens(screens, window_info):
     used_screen = select_screen(window_info, screens)
-    echo(used_screen)
     final_screen = 0
     if "U" == direction:
         if command.check_if_horz_maximized(window_info.id) \
@@ -175,6 +177,22 @@ def move_between_screens(screens, window_info):
         move_and_maximize(window_info.id, final_screen.start_width, final_screen.start_height)
 
 
+def center_screen(screens, window_info):
+    used_screen = select_screen(window_info, screens)
+    if "S" == direction:
+        x = used_screen.width * 0.2
+        y = used_screen.height * 0.2
+        screen_height = used_screen.height * 0.6
+        screen_width = used_screen.width * 0.6
+        place_window(window_info, x, y, screen_width, screen_height)
+    if "V" == direction:
+        bar_size =37
+        x = used_screen.width * 0.2
+        y = bar_size
+        screen_height = used_screen.height - bar_size - 7
+        screen_width = used_screen.width * 0.6
+        place_window(window_info, x, y, screen_width, screen_height)
+
 def maximize(window_id):
     command.minimize(window_id)
     command.maximize(window_id)
@@ -190,7 +208,10 @@ def main():
     screens = get_screens()
     window_info = get_window_info()
     # move_window(screens, window_info)
-    move_between_screens(screens, window_info)
+    if direction in ("U", "D", "L", "R"):
+        move_between_screens(screens, window_info)
+    elif direction in ("S", "V"):
+        center_screen(screens, window_info)
 
 
 direction = sys.argv[1]
