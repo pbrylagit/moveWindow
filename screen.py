@@ -15,8 +15,12 @@ class Screen(object):
         self.height = height
 
     def __str__(self):
-        return "Screen [name=" + self.name + ", start_width=" + str(self.start_width) + ", primary=" + str(self.primary) + \
-        ", start_height=" + str(self.start_height) + ", width=" + str(self.width) + ", height=" + str(self.height) + "]"
+        return "Screen [name=" + self.name + \
+            ", start_width=" + str(self.start_width) + \
+            ", primary=" + str(self.primary) + \
+            ", start_height=" + str(self.start_height) + \
+            ", width=" + str(self.width) + \
+            ", height=" + str(self.height) + "]"
 
 
 def new_screen(name, start_width, primary, start_height, width, height):

@@ -6,66 +6,21 @@ from window import Window
 debug = "on"
 
 
-def echo(to_print):
-    if debug == "on":
-        print(to_print)
-
-
-def place_window(window, x, y, screen_width, screen_height):
-    if command.check_if_maximized(window.id):
-        command.minimize(window.id)
-    command.move_window_cmd(x, y, window.id, screen_width, screen_height)
-
-
-def move_on_screen(window, screen):
-    echo("move_on_screen")
-    if "U" == direction:
-        move_up(window, screen)
-    if "D" == direction:
-        move_down(window, screen)
-    if "L" == direction:
-        move_left(window, screen)
-    if "R" == direction:
-        move_right(window, screen)
-
-
-def move_up(window, screen):
-    echo("move_up")
-    bar_size = command.get_bar_size()
-    start_height = screen.start_height + bar_size
-    half_height = (screen.height / 2) - 37
-    place_window(window, screen.start_width, start_height, screen.width, half_height)
-
-
-def move_down(window, screen):
-    echo("move_down")
-    bar_size = command.get_bar_size()
-    start_height = screen.start_height + (screen.height / 2) + bar_size / 2
-    half_height = (screen.height / 2) - 37
-    place_window(window, screen.start_width, start_height, screen.width, half_height)
-
-
-def move_left(window, screen):
-    echo("move_left")
-    bar_size = command.get_bar_size()
-    start_height = bar_size + screen.start_height
-    half_height = screen.height - (bar_size * 2)
-    half_width = screen.width / 2
-    place_window(window, screen.start_width, start_height, half_width, half_height)
-
-
-def move_right(window, screen):
-    echo("move_right")
-    bar_size = command.get_bar_size()
-    start_height = bar_size + screen.start_height
-    half_height = screen.height - (bar_size * 2)
-    half_width = screen.width / 2
-    start_width = screen.start_width + screen.width / 2
-    place_window(window, start_width, start_height, half_width, half_height)
+def main():
+    echo("install xdotool")
+    echo("install wmctrl")
+    direction = sys.argv[1]
+    screens = get_screens()
+    window_info = get_window_info()
+    # move_window(direction, screens, window_info)
+    if direction in ("U", "D", "L", "R"):
+        move_between_screens(direction, screens, window_info)
+    elif direction in ("S", "V", "M"):
+        center_screen(direction, screens, window_info)
 
 
 def get_screens():
-    echo("\n" +get_screens.__name__)
+    echo("\n" + get_screens.__name__)
     connected_screens = command.get_screens()
     echo("Connected screens from xrandr:\n" + connected_screens)
     screens = str(connected_screens).splitlines()
@@ -85,7 +40,8 @@ def get_screens():
         height = int(resolution.split("+")[0].split("x")[1])
         start_width = int(resolution.split("+")[1])
         start_height = int(resolution.split("+")[2])
-        list_of_screens.append(new_screen(name, primary, start_width, start_height, width, height))
+        list_of_screens.append(new_screen(
+            name, primary, start_width, start_height, width, height))
     list_of_screens.sort(key=lambda x: int(x.width), reverse=True)
     echo("Screen objects:")
     for s in list_of_screens:
@@ -119,6 +75,11 @@ def get_window_info():
     return window
 
 
+def echo(to_print):
+    if debug == "on":
+        print(to_print)
+
+
 def select_screen(window, screens):
     echo("\n" + select_screen.__name__)
     x = window.start_width
@@ -136,7 +97,7 @@ def select_screen(window, screens):
             return screen
 
 
-def move_between_screens(screens, window_info):
+def move_between_screens(direction, screens, window_info):
     used_screen = select_screen(window_info, screens)
     final_screen = 0
     if "U" == direction:
@@ -178,10 +139,11 @@ def move_between_screens(screens, window_info):
     if final_screen == 0:
         echo("no final screen")
     else:
-        move_and_maximize(window_info.id, final_screen.start_width, final_screen.start_height)
+        move_and_maximize(
+            window_info.id, final_screen.start_width, final_screen.start_height)
 
 
-def center_screen(screens, window_info):
+def center_screen(direction, screens, window_info):
     used_screen = select_screen(window_info, screens)
     if "S" == direction:
         x = used_screen.start_width + used_screen.width * 0.2
@@ -194,14 +156,71 @@ def center_screen(screens, window_info):
         additional_size = 7
         if not used_screen.primary:
             bar_size = 0
-            additional_size = 7
+            additional_size = 0
         x = used_screen.start_width + used_screen.width * 0.2
         y = used_screen.start_height + bar_size
         screen_height = used_screen.height - bar_size - additional_size
         screen_width = used_screen.width * 0.6
         place_window(window_info, x, y, screen_width, screen_height)
-    if "M" ==direction:
+    if "M" == direction:
         command.maximize(window_info.id)
+
+
+def place_window(window, x, y, screen_width, screen_height):
+    if command.check_if_maximized(window.id):
+        command.minimize(window.id)
+    command.move_window_cmd(x, y, window.id, screen_width, screen_height)
+
+
+def move_on_screen(direction, window, screen):
+    echo("move_on_screen")
+    if "U" == direction:
+        move_up(window, screen)
+    if "D" == direction:
+        move_down(window, screen)
+    if "L" == direction:
+        move_left(window, screen)
+    if "R" == direction:
+        move_right(window, screen)
+
+
+def move_up(window, screen):
+    echo("move_up")
+    bar_size = command.get_bar_size()
+    start_height = screen.start_height + bar_size
+    half_height = (screen.height / 2) - 37
+    place_window(window, screen.start_width,
+                 start_height, screen.width, half_height)
+
+
+def move_down(window, screen):
+    echo("move_down")
+    bar_size = command.get_bar_size()
+    start_height = screen.start_height + (screen.height / 2) + bar_size / 2
+    half_height = (screen.height / 2) - 37
+    place_window(window, screen.start_width,
+                 start_height, screen.width, half_height)
+
+
+def move_left(window, screen):
+    echo("move_left")
+    bar_size = command.get_bar_size()
+    start_height = bar_size + screen.start_height
+    half_height = screen.height - (bar_size * 2)
+    half_width = screen.width / 2
+    place_window(window, screen.start_width,
+                 start_height, half_width, half_height)
+
+
+def move_right(window, screen):
+    echo("move_right")
+    bar_size = command.get_bar_size()
+    start_height = bar_size + screen.start_height
+    half_height = screen.height - (bar_size * 2)
+    half_width = screen.width / 2
+    start_width = screen.start_width + screen.width / 2
+    place_window(window, start_width, start_height, half_width, half_height)
+
 
 def maximize(window_id):
     command.minimize(window_id)
@@ -214,17 +233,5 @@ def move_and_maximize(window_id, x, y):
     command.maximize(window_id)
 
 
-def main():
-    screens = get_screens()
-    window_info = get_window_info()
-    # move_window(screens, window_info)
-    if direction in ("U", "D", "L", "R"):
-        move_between_screens(screens, window_info)
-    elif direction in ("S", "V", "M"):
-        center_screen(screens, window_info)
-
-
-direction = sys.argv[1]
-echo("install xdotool")
-echo("install wmctrl")
-main()
+if __name__ == "__main__":
+    main()

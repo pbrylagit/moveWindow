@@ -16,8 +16,11 @@ class Window(object):
         self.height = height
 
     def __str__(self):
-        return "Window [id=" + self.id + ", start_width=" + str(self.start_width) + ", start_height=" \
-               + str(self.start_height) + ", width=" + str(self.width) + ", height=" + str(self.height) + "]"
+        return "Window [id=" + self.id + \
+            ", start_width=" + str(self.start_width) + \
+            ", start_height=" + str(self.start_height) + \
+            ", width=" + str(self.width) + \
+            ", height=" + str(self.height) + "]"
 
 
 def new_window(idk, start_width, start_height, width, height):
